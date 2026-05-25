@@ -1,6 +1,42 @@
 import type { VehicleSize } from './lanes'
 import { BASE_RATES } from './lanes'
 
+export interface PriceCentsBreakdown {
+  baseCents: number
+  rushCents: number
+  inoperableCents: number
+  totalCents: number
+}
+
+const BASE_CENTS: Record<VehicleSize, number> = {
+  sedan: 35000,
+  'mid-suv': 40000,
+  'full-suv': 45000,
+  hd: 52500,
+}
+
+export function calculatePriceCents({
+  sizeClass,
+  pickupDate,
+  isInoperable,
+}: {
+  sizeClass: VehicleSize
+  pickupDate: string
+  isInoperable: boolean
+}): PriceCentsBreakdown {
+  const baseCents = BASE_CENTS[sizeClass]
+  const departure = parseDepartureDate(pickupDate)
+  const hoursUntil = (departure.getTime() - Date.now()) / (1000 * 60 * 60)
+  const rushCents = hoursUntil < 72 ? 12500 : 0
+  const inoperableCents = isInoperable ? 17500 : 0
+  return {
+    baseCents,
+    rushCents,
+    inoperableCents,
+    totalCents: baseCents + rushCents + inoperableCents,
+  }
+}
+
 export interface PriceBreakdown {
   base: number
   rush: number

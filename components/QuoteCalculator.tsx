@@ -9,6 +9,7 @@ import {
   parseDepartureDate,
   toDateString,
 } from '@/lib/pricing'
+import Link from 'next/link'
 import { createQuoteHoldLead } from '@/lib/leads'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -172,9 +173,25 @@ export default function QuoteCalculator() {
         </div>
       )}
 
-      {/* Email hold */}
+      {/* Book + hold */}
       {breakdown && (
-        <div className="border-t border-lane-divider px-5 sm:px-6 py-5">
+        <div className="border-t border-lane-divider px-5 sm:px-6 py-5 flex flex-col gap-4">
+          {/* Primary CTA */}
+          <Link
+            href={`/book?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&vehicle_size=${vehicle.replace(/-/g, '_')}&pickup_date=${date}&inoperable=${inoperable}`}
+            className="flex items-center justify-center gap-2 h-11 px-6 bg-lane-accent text-lane-ink text-sm font-semibold rounded-md hover:opacity-90 transition-opacity"
+          >
+            Book this slot →
+          </Link>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 border-t border-lane-divider" />
+            <span className="text-[11px] text-neutral-400">or not ready to commit yet?</span>
+            <div className="flex-1 border-t border-lane-divider" />
+          </div>
+
+          {/* Hold form */}
           {holdStatus === 'success' ? (
             <div className="flex items-center gap-2.5">
               <span className="w-5 h-5 rounded-full bg-lane-accent flex items-center justify-center flex-shrink-0">
@@ -225,3 +242,4 @@ export default function QuoteCalculator() {
     </div>
   )
 }
+
