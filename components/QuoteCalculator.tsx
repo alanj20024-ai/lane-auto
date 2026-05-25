@@ -9,6 +9,11 @@ import {
   parseDepartureDate,
   toDateString,
 } from '@/lib/pricing'
+import { createQuoteHoldLead } from '@/lib/leads'
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+type HoldStatus = 'idle' | 'loading' | 'success' | 'error'
 
 export default function QuoteCalculator() {
   const [origin, setOrigin] = useState<Origin>('Houston')
@@ -17,8 +22,10 @@ export default function QuoteCalculator() {
   const [date, setDate] = useState<string>('')
   const [inoperable, setInoperable] = useState(false)
   const [dateError, setDateError] = useState('')
+
   const [email, setEmail] = useState('')
-  const [submitted, setSubmitted] = useState(false)
+  const [emailError, setEmailError] = useState('')
+  const [holdStatus, setHoldStatus] = useState<HoldStatus>('idle')
 
   // Set default date client-side to avoid SSR hydration mismatch
   useEffect(() => {
@@ -34,11 +41,7 @@ export default function QuoteCalculator() {
 
   const handleDateChange = (val: string) => {
     setDate(val)
-    if (val && !isValidDepartureDay(val)) {
-      setDateError('Only Thursday and Friday departures are available.')
-    } else {
-      setDateError('')
-    }
+    setDateError(val && !isValidDepartureDay(val) ? 'Only Thursday and Friday departures are available.' : '')
   }
 
   const validDate = date && !dateError && isValidDepartureDay(date)
@@ -47,9 +50,23 @@ export default function QuoteCalculator() {
   const today = new Date()
   const minDate = toDateString(today)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleHoldSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
+    if (!EMAIL_RE.test(email)) {
+      setEmailError('Enter a valid email address.')
+      return
+    }
+    setEmailError('')
+    setHoldStatus('loading')
+    const result = await createQuoteHoldLead({
+      email,
+      origin,
+      destination,
+      vehicleSize: vehicle,
+      pickupDate: date,
+      priceCents: breakdown!.total * 100,
+    })
+    setHoldStatus(result.success ? 'success' : 'error')
   }
 
   const inputClass =
@@ -158,7 +175,7 @@ export default function QuoteCalculator() {
       {/* Email hold */}
       {breakdown && (
         <div className="border-t border-lane-divider px-5 sm:px-6 py-5">
-          {submitted ? (
+          {holdStatus === 'success' ? (
             <div className="flex items-center gap-2.5">
               <span className="w-5 h-5 rounded-full bg-lane-accent flex items-center justify-center flex-shrink-0">
                 <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -172,28 +189,35 @@ export default function QuoteCalculator() {
                 </svg>
               </span>
               <p className="text-sm text-lane-ink">
-                We&apos;ll save this quote and email you a booking link.
+                We saved your quote. We&apos;ll email a booking link shortly.
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1 flex flex-col gap-1.5">
-                <label className={labelClass}>Hold this slot</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  required
-                  className={inputClass}
-                />
+            <form onSubmit={handleHoldSubmit} className="flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1 flex flex-col gap-1.5">
+                  <label className={labelClass}>Hold this slot</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setEmailError('') }}
+                    placeholder="your@email.com"
+                    disabled={holdStatus === 'loading'}
+                    className={`${inputClass} disabled:opacity-50`}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={holdStatus === 'loading'}
+                  className="sm:self-end h-10 px-5 bg-lane-accent text-lane-ink text-sm font-medium rounded-md hover:opacity-90 transition-opacity whitespace-nowrap disabled:opacity-60"
+                >
+                  {holdStatus === 'loading' ? 'Saving…' : 'Save quote'}
+                </button>
               </div>
-              <button
-                type="submit"
-                className="sm:self-end h-10 px-5 bg-lane-accent text-lane-ink text-sm font-medium rounded-md hover:opacity-90 transition-opacity whitespace-nowrap"
-              >
-                Save quote
-              </button>
+              {emailError && <p className="text-xs text-red-500">{emailError}</p>}
+              {holdStatus === 'error' && (
+                <p className="text-xs text-red-500">Something went wrong. Try again.</p>
+              )}
             </form>
           )}
         </div>
