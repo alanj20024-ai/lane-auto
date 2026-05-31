@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function Footer() {
   return (
     <footer className="bg-lane-ink py-14 px-4 sm:px-6">
@@ -19,9 +21,13 @@ export default function Footer() {
               Contact
             </p>
             <div className="flex flex-col gap-2 text-sm text-neutral-400">
-              <span>(713) XXX-XXXX</span>
-              <span>hello@laneauto.com</span>
-              <span>Houston, TX</span>
+              <a href="tel:+18326007513" className="hover:text-neutral-200 transition-colors">
+                (832) 600-7513
+              </a>
+              <a href="mailto:freight@limitlesspro.one" className="hover:text-neutral-200 transition-colors">
+                freight@limitlesspro.one
+              </a>
+              <span>Houston, TX · Texas operations</span>
             </div>
           </div>
 
@@ -31,14 +37,22 @@ export default function Footer() {
             </p>
             <div className="flex flex-col gap-2 text-sm text-neutral-400">
               <span>A Limitless Pro LLC company</span>
-              <span className="font-mono">MC#XXXXXX</span>
-              <span>BMC-84 surety bond posted</span>
+              <span className="font-mono">MC#1532052</span>
+              <span>BMC-84 bond #JT016993</span>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-6 text-xs text-neutral-600">
-          © 2026 Limitless Pro LLC. All rights reserved.
+        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-neutral-600">
+          <span>© 2026 Limitless Pro LLC. All rights reserved.</span>
+          <div className="flex gap-4">
+            <Link href="/terms" className="hover:text-neutral-400 transition-colors">
+              Terms of Service
+            </Link>
+            <Link href="/privacy" className="hover:text-neutral-400 transition-colors">
+              Privacy Policy
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

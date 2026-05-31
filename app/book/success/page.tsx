@@ -54,11 +54,11 @@ export default async function SuccessPage({
   try {
     session = await stripe.checkout.sessions.retrieve(String(session_id))
   } catch {
-    return <ErrorState message="Could not verify payment. Contact hello@laneauto.com." />
+    return <ErrorState message="Could not verify payment. Contact freight@limitlesspro.one." />
   }
 
   if (session.payment_status !== 'paid') {
-    return <ErrorState message="Payment not completed. If you were charged, contact hello@laneauto.com." />
+    return <ErrorState message="Payment not completed. If you were charged, contact freight@limitlesspro.one." />
   }
 
   // ── mark booking paid ────────────────────────────────────────────────────
@@ -183,10 +183,13 @@ export default async function SuccessPage({
         {/* Contact */}
         <div className="border-t border-lane-divider pt-8 text-center text-sm text-neutral-500">
           Questions?{' '}
-          <a href="mailto:hello@laneauto.com" className="text-lane-ink hover:underline">
-            hello@laneauto.com
+          <a href="mailto:freight@limitlesspro.one" className="text-lane-ink hover:underline">
+            freight@limitlesspro.one
           </a>{' '}
-          · (713) XXX-XXXX
+          ·{' '}
+          <a href="tel:+18326007513" className="text-lane-ink hover:underline">
+            (832) 600-7513
+          </a>
         </div>
       </div>
     </div>
