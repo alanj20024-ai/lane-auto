@@ -1,9 +1,17 @@
-import { ShieldCheck, Banknote, Truck, MapPin } from 'lucide-react'
+import { ShieldCheck, Banknote, Truck, MapPin, type LucideIcon } from 'lucide-react'
+
+type TrustItem = {
+  Icon: LucideIcon
+  heading: string
+  primary: string
+  sub: string
+  href?: string
+}
 
 const FMCSA_URL =
   'http://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_carrlist?n_dotno=4045921&s_prefix=MC&n_docketno=1532052&s_legalname=&s_dbaname=&s_state='
 
-const items = [
+const items: TrustItem[] = [
   {
     Icon: ShieldCheck,
     heading: 'FMCSA verified',
@@ -29,7 +37,7 @@ const items = [
     primary: 'Houston-based',
     sub: 'Texas Triangle since 2026',
   },
-] as const
+]
 
 export default function TrustStrip() {
   return (
