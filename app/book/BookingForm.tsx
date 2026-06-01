@@ -5,6 +5,7 @@ import Link from 'next/link'
 import TopNav from '@/components/TopNav'
 import { VEHICLE_SIZES, BASE_RATES, type VehicleSize } from '@/lib/lanes'
 import { calculatePriceCents, getNextThursday } from '@/lib/pricing'
+import { fbqTrack } from '@/lib/pixel'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -289,6 +290,12 @@ export default function BookingForm({
         setSubmitStatus('error')
         return
       }
+      const pricing = calculatePriceCents({
+        sizeClass: form.sizeClass,
+        pickupDate: pickupDate || getNextThursday(),
+        isInoperable: form.isInoperable,
+      })
+      fbqTrack('InitiateCheckout', { value: pricing.totalCents / 100, currency: 'USD' })
       window.location.href = data.checkoutUrl
     } catch {
       setServerError('Network error. Please check your connection and try again.')

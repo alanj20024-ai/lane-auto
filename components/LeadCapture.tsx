@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createNotifyLead } from '@/lib/leads'
+import { fbqTrack } from '@/lib/pixel'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const ZIP_RE = /^\d{5}$/
@@ -37,6 +38,7 @@ export default function LeadCapture() {
     if (!validate()) return
     setStatus('loading')
     const result = await createNotifyLead({ email, zipCode: zip || undefined })
+    if (result.success) fbqTrack('Lead')
     setStatus(result.success ? 'success' : 'error')
   }
 

@@ -11,6 +11,7 @@ import {
 } from '@/lib/pricing'
 import Link from 'next/link'
 import { createQuoteHoldLead } from '@/lib/leads'
+import { fbqTrack } from '@/lib/pixel'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -77,6 +78,7 @@ export default function QuoteCalculator() {
       pickupDate: date,
       priceCents: breakdown!.total * 100,
     })
+    if (result.success) fbqTrack('Lead')
     setHoldStatus(result.success ? 'success' : 'error')
   }
 

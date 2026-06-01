@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Stripe from 'stripe'
 import TopNav from '@/components/TopNav'
+import PixelPurchase from '@/components/PixelPurchase'
 import { createServerClient } from '@/lib/supabase'
 import { VEHICLE_SIZES } from '@/lib/lanes'
 
@@ -88,6 +89,7 @@ export default async function SuccessPage({
 
   return (
     <div className="min-h-screen bg-lane-bg">
+      <PixelPurchase value={booking.total_price_cents / 100} />
       <TopNav />
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16">
