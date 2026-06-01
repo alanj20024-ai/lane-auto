@@ -1,6 +1,9 @@
 import type { VehicleSize } from './lanes'
 import { BASE_RATES } from './lanes'
 
+// Set to 0 to disable rush surcharge; restore to 12500 to re-enable
+const RUSH_SURCHARGE_CENTS = 0
+
 export interface PriceCentsBreakdown {
   baseCents: number
   rushCents: number
@@ -27,7 +30,7 @@ export function calculatePriceCents({
   const baseCents = BASE_CENTS[sizeClass]
   const departure = parseDepartureDate(pickupDate)
   const hoursUntil = (departure.getTime() - Date.now()) / (1000 * 60 * 60)
-  const rushCents = hoursUntil < 72 ? 12500 : 0
+  const rushCents = hoursUntil < 72 ? RUSH_SURCHARGE_CENTS : 0
   const inoperableCents = isInoperable ? 17500 : 0
   return {
     baseCents,
@@ -51,7 +54,7 @@ export function calcPrice(
 ): PriceBreakdown {
   const base = BASE_RATES[vehicle]
   const hoursUntil = (departureDate.getTime() - Date.now()) / (1000 * 60 * 60)
-  const rush = hoursUntil < 72 ? 125 : 0
+  const rush = hoursUntil < 72 ? RUSH_SURCHARGE_CENTS / 100 : 0
   const inoperableSurcharge = inoperable ? 175 : 0
   return {
     base,
