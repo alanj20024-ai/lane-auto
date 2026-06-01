@@ -28,15 +28,25 @@ export default function QuoteCalculator() {
   const [emailError, setEmailError] = useState('')
   const [holdStatus, setHoldStatus] = useState<HoldStatus>('idle')
 
-  // Set default date client-side to avoid SSR hydration mismatch
+  // Initialize from URL params (departures board prefill) or defaults
   useEffect(() => {
-    setDate(getNextThursday())
-  }, [])
+    const sp = new URLSearchParams(window.location.search)
+    const urlOrigin = sp.get('origin') as Origin
+    const urlDest   = sp.get('destination') ?? ''
+    const urlDate   = sp.get('pickup_date') ?? ''
+    const urlVeh    = sp.get('vehicle_size') as VehicleSize
 
-  // Reset destination when origin changes
-  useEffect(() => {
-    setDestination(getDestinations(origin)[0])
-  }, [origin])
+    const resolvedOrigin: Origin =
+      urlOrigin === 'Houston' || urlOrigin === 'Dallas' ? urlOrigin : 'Houston'
+    setOrigin(resolvedOrigin)
+    setDestination(
+      urlDest && getDestinations(resolvedOrigin).includes(urlDest)
+        ? urlDest
+        : getDestinations(resolvedOrigin)[0]
+    )
+    if (urlVeh && ['sedan', 'mid-suv', 'full-suv', 'hd'].includes(urlVeh)) setVehicle(urlVeh)
+    setDate(urlDate && isValidDepartureDay(urlDate) ? urlDate : getNextThursday())
+  }, [])
 
   const destinations = getDestinations(origin)
 
@@ -83,7 +93,11 @@ export default function QuoteCalculator() {
           <label className={labelClass}>From</label>
           <select
             value={origin}
-            onChange={(e) => setOrigin(e.target.value as Origin)}
+            onChange={(e) => {
+              const o = e.target.value as Origin
+              setOrigin(o)
+              setDestination(getDestinations(o)[0])
+            }}
             className={inputClass}
           >
             <option value="Houston">Houston</option>
